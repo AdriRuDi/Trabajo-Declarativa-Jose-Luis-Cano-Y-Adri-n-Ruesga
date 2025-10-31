@@ -88,7 +88,7 @@ object TableroClasicoLyS extends TableroJuego:
 
   val posicionInicialLiebre: Posicion = M_D2
   val posicionesInicialesSabuesos: Set[Posicion] = Set(A_I1, M_I2, B_I1)
-  val posicionesMetaLiebre: Set[Posicion] = Set(B_I1, M_I1, A_I1)
+  val posicionesMetaLiebre: Set[Posicion] = M_I2
 
   def pintarTablero(estado: Estado): Unit =
     println("Pintar tablero aún no implementado")
