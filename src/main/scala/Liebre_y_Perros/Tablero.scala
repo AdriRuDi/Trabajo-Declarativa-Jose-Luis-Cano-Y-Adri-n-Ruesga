@@ -74,7 +74,7 @@ object TableroClasicoLyS extends TableroJuego:
   // --- Movimientos posibles ---
   def movimientosDesde(p: Posicion): Set[Posicion] =
     adyacencias.getOrElse(p, Set.empty)
-
+1
   // --- Pintado (con colores y forma hexagonal) ---
   private def pintarNodo(p: Posicion, estado: Estado): String =
     val RESET = "\u001B[0m"

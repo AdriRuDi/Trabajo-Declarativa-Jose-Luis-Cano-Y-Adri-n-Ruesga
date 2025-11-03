@@ -36,3 +36,10 @@ case object MovimientoSabueso extends MovimientoFicha:
       if !est.ocupadas.contains(destino)
     yield (sabueso, destino)
     pares
+
+def mostrarMovimientos(movimientos: Set[Posicion]): Unit = {
+  println("\nMovimientos posibles:")
+  movimientos.toList.zipWithIndex.foreach { case (mov, idx) =>
+    println(s"${idx + 1}. $mov")
+  }
+}
