@@ -5,22 +5,24 @@ def bucleJuego(tablero: TableroJuego, estado: Estado): Jugador =
   pintarTablero(estado) // paso 1
 
   val movimientos: Set[Posicion] = estado.turno match { // paso 2
-    case liebre => MovimientoLiebre(tablero, estado)
-    case sabuesos => MovimientoSabueso(tablero, estado)
+    case Jugador.Liebre => MovimientoLiebre.movimientosPosibles(tablero, estado)
+    case Jugador.Sabuesos => MovimientoSabueso.movimientosPosibles(tablero, estado)
   }
 
-mostrarMovimientos(movimientos) // paso 3
+  movimientos.toList.zipWithIndex.foreach { // paso 3
+    case (mov, idx) => 
+    println(s"${idx + 1}. $mov")
+  }
 
 print("Elige un movimiento (número): ") // paso 4
 val eleccion = scala.io.StdIn.readInt()
 val listaMovimientos = movimientos.toList
 val movimientoElegido = listaMovimientos(eleccion - 1)
 
-val nuevoEstado = Estado.turno match { // paso 5
-  case liebre => Estado.copy (Liebre = movimientoElegido)
-  case sabuesos => 
+val nuevoEstado = estado.turno match { // paso 5
+  case Jugador.Liebre => estado.copy (liebre = movimientoElegido, turno = Jugador.Sabuesos)
+  case Jugador.Sabuesos => 
     val (origen, destino) = movimientoElegido
-    Estado.copy (Sabuesos = Estado.sabuesos - origen + destino)
+    estado.copy (sabuesos = estado.sabuesos - origen + destino, turno = Jugador.Liebre)
 }
 
-val finalPartida = 

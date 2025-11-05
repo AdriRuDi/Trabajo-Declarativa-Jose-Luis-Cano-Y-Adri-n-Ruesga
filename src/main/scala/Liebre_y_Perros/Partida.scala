@@ -27,5 +27,6 @@ object Estado:
   val turno = sortearTurno()
   val estado = Estado.inicial(TableroClasicoLyS, turno)
 
-  println(s"Empieza el turno de: $turno")
+  println(s"Emp" +
+    s"ieza el turno de: $turno")
   TableroClasicoLyS.pintarTablero(estado)
