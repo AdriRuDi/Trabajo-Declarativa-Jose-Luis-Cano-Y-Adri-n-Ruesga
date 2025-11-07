@@ -5,12 +5,21 @@ sealed trait MovimientoFicha:
   /** Devuelve todas las posiciones a las que puede moverse la ficha */
   def movimientosPosibles(tab: TableroJuego, est: Estado): Set[Posicion]
 
-case object MovimientoLiebre extends MovimientoFicha:
+case object MovimientoLiebre extends MovimientoFicha{
   override def movimientosPosibles(tab: TableroJuego, est: Estado): Set[Posicion] =
     // Obtiene las posiciones accesibles desde la posición actual de la liebre
     val posibles = tab.movimientosDesde(est.liebre)
     // Elimina las posiciones ocupadas por los sabuesos
     posibles.diff(est.ocupadas)
+
+   override def evaluarMovimiento(tablero: TableroJuego, estado: Estado, destino: Posicion): (Int, Int) =
+     //primero vamos a calcular el primer valor
+     val rebasados = estado.sabuesos.count(sab => estado.liebre.x < sab.x) // numero de sabuesos rebasados
+     val metricaDistanciaMeta = 4 - destino.manhattan(TableroJuego.posicionMetaLiebre) // metrica de liebre hasta la meta
+     val sumaDistancias = estado.sabuesos.map(sab => destino.manhattan(sab)).sum // suma de la distancia entre la liebre y todos los sabuesos
+     if (estado.sabuesos.exists(sab => estado.liebre.x >= sab.x)){ val resultado = (rebasados,sumaDistancias)}
+     else{val resultado = (metricaDistanciaMeta,sumaDistancias)}
+}
 
 case object MovimientoSabueso extends MovimientoFicha:
   override def movimientosPosibles(tab: TableroJuego, est: Estado): Set[Posicion] =

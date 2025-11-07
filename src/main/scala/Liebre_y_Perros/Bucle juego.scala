@@ -24,6 +24,8 @@ val nuevoEstado = estado.turno match { // paso 5
   case Jugador.Sabuesos => 
     val (origen, destino) = movimientoElegido
     estado.copy (sabuesos = estado.sabuesos - origen + destino, turno = Jugador.Liebre)}
+    println(s"La heurística de este movimiento es: ${MovimientoLiebre.evaluarMovimiento(tablero, estado, movimientoElegido)}")
+
 
 esFinPartida(estado,tablero) match {
   case Some(ganador) => 
