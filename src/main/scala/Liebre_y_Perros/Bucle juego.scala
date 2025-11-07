@@ -23,6 +23,14 @@ val nuevoEstado = estado.turno match { // paso 5
   case Jugador.Liebre => estado.copy (liebre = movimientoElegido, turno = Jugador.Sabuesos)
   case Jugador.Sabuesos => 
     val (origen, destino) = movimientoElegido
-    estado.copy (sabuesos = estado.sabuesos - origen + destino, turno = Jugador.Liebre)
+    estado.copy (sabuesos = estado.sabuesos - origen + destino, turno = Jugador.Liebre)}
+
+esFinPartida(estado,tablero) match {
+  case Some(ganador) => 
+    pintarTablero(estado)
+    println(s"\nEl ganador es: $ganador")
+    ganador
+  case None => bucleJuego(tablero, nuevoEstado)  
 }
+
 

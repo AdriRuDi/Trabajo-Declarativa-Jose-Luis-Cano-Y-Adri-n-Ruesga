@@ -1,4 +1,5 @@
 package Liebre_y_Perros
+import Liebre_y_Perros._
 
 // --- Enumeraciones ---
 enum Fila(val y: Int):
@@ -29,7 +30,6 @@ trait TableroJuego:
   def posicionesInicialesSabuesos: Set[Posicion]
   def posicionMetaLiebre: Posicion
   def pintarTablero(estado: Estado): Unit
-  def esFinPartida(estado: Estado): Option[Jugador]
 
 // --- Implementación del tablero clásico Liebre y Sabuesos ---
 object TableroClasicoLyS extends TableroJuego:
@@ -74,7 +74,7 @@ object TableroClasicoLyS extends TableroJuego:
   // --- Movimientos posibles ---
   def movimientosDesde(p: Posicion): Set[Posicion] =
     adyacencias.getOrElse(p, Set.empty)
-1
+    
   // --- Pintado (con colores y forma hexagonal) ---
   private def pintarNodo(p: Posicion, estado: Estado): String =
     val RESET = "\u001B[0m"
@@ -95,4 +95,11 @@ object TableroClasicoLyS extends TableroJuego:
     println(s"         ${s(I1B)}-----${s(MB)}-----${s(D1B)}")
 
   // --- Fin de partida (pendiente de implementar) ---
-  def esFinPartida(estado: Estado): Option[Jugador] = None
+  def esFinPartida(estado: Estado, tablero: TableroJuego): Option[Jugador] = {
+    val ningunSabuesoPuedeMover = movimientosPosiblesPorSabueso(tablero,estado).isEmpty
+    val ningunaLiebrePuedeMover = MovimientoLiebre.movimientosPosibles(tablero,estado).isEmpty
+    if (ningunSabuesoPuedeMover) {Some(Jugador.Liebre)}
+    else if (ningunaLiebrePuedeMover) {Some(Jugador.Sabuesos)}
+    else  {None}
+  }
+    

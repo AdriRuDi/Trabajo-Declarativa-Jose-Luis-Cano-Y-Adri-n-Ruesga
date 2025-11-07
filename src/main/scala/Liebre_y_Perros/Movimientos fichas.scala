@@ -24,7 +24,7 @@ case object MovimientoSabueso extends MovimientoFicha:
       if !est.ocupadas.contains(destino)
     yield destino
     movimientos
-
+  
   def movimientosPosiblesPorSabueso(tab: TableroJuego, est: Estado): Set[(Posicion, Posicion)] =
     // Devuelve los pares (origen, destino) posibles para cada sabueso
     val pares = for
