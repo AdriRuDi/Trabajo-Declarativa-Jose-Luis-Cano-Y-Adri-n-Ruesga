@@ -1,6 +1,6 @@
 package Liebre_y_Perros
 
-// --- Enumeraciones ---
+//  Enumeraciones 
 enum Fila(val y: Int):
   case A extends Fila(1)
   case M extends Fila(0)
@@ -13,18 +13,18 @@ enum Columna(val x: Int):
   case D1 extends Columna(1)
   case D2 extends Columna(2)
 
-// --- Posición ---
+//  Posición 
 case class Posicion(col: Columna, fila: Fila):
   def x: Int = col.x
   def y: Int = fila.y
   def manhattan(other: Posicion): Int =
     math.abs(this.x - other.x) + math.abs(this.y - other.y)
 
-// --- Jugadores ---
+// Jugadores 
 enum Jugador:
   case Liebre, Sabuesos
 
-// --- Trait general del tablero ---
+// Trait general del tablero 
 trait TableroJuego:
   def movimientosDesde(p: Posicion): Set[Posicion]
   def posicionInicialLiebre: Posicion
@@ -33,7 +33,7 @@ trait TableroJuego:
   def pintarTablero(estado: Estado): Unit
   def esFinPartida(estado: Estado): Option[Jugador]
 
-// --- Implementación del tablero clásico ---
+// Implementación del tablero clásico
 object TableroClasicoLyS extends TableroJuego:
 
   val I1A = Posicion(Columna.I1, Fila.A)
