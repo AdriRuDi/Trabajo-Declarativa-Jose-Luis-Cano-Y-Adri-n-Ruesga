@@ -1,8 +1,9 @@
 package Liebre_y_Perros
+
 import Liebre_y_Perros._
 
 @main def programaPrincipal(): Unit =
-  println("Bienvenido al juego: Liebre y Sabuesos")
+  println("Bienvenido al juego: Liebre y Sabuesos ")
   println("=============================================")
 
   def elegirModoIA(): Set[Jugador] =
@@ -25,9 +26,9 @@ import Liebre_y_Perros._
     val estado = Estado.inicial(TableroClasicoLyS, turno)
     val modoIA = elegirModoIA()
 
-    println(s"\n Turno inicial: $turno")
+    println(s"\n🎲 Turno inicial: $turno")
     val ganador = bucleJuego(TableroClasicoLyS, estado, modoIA)
-    println(s"\n ¡Partida terminada! Ganador: $ganador\n")
+    println(s"\n🏁 ¡Partida terminada! Ganador: $ganador\n")
 
   def buclePrincipal(): Unit =
     jugarPartida()
