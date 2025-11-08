@@ -30,19 +30,39 @@ def bucleJuego(tablero: TableroJuego, estado: Estado, modoIA: Set[Jugador]): Jug
     estado.turno match {
       case Jugador.Liebre =>
         val movimientos = MovimientoLiebre.movimientosPosibles(tablero, estado).toSeq
-        println("Movimientos posibles para la liebre:")
-        movimientos.zipWithIndex.foreach { case (m, i) => println(s"${i + 1}. $m") }
-        val opcion = scala.io.StdIn.readLine("Elige movimiento (número): ").toInt
-        movimientos(opcion - 1)
+        def pedirMovimiento(): Posicion =
+          println("Movimientos posibles para la liebre:")
+          movimientos.zipWithIndex.foreach { case (m, i) => println(s"${i + 1}. $m") }
+          val entrada = scala.io.StdIn.readLine("Elige movimiento (número): ")
+          if entrada.forall(_.isDigit) then
+            val opcion = entrada.toInt
+            if opcion >= 1 && opcion <= movimientos.size then movimientos(opcion - 1)
+            else
+              println("Opción fuera de rango. Intenta de nuevo.\n")
+              pedirMovimiento()
+          else
+            println("Entrada no válida. Intenta de nuevo.\n")
+            pedirMovimiento()
+        pedirMovimiento()
 
       case Jugador.Sabuesos =>
         val movimientos = MovimientoSabueso.movimientosPosiblesPorSabueso(tablero, estado).toSeq
-        println("Movimientos posibles para los sabuesos:")
-        movimientos.zipWithIndex.foreach { case ((origen, destino), i) =>
-          println(s"${i + 1}. De $origen a $destino")
-        }
-        val opcion = scala.io.StdIn.readLine("Elige movimiento (número): ").toInt
-        movimientos(opcion - 1)
+        def pedirMovimiento(): (Posicion, Posicion) =
+          println("Movimientos posibles para los sabuesos:")
+          movimientos.zipWithIndex.foreach { case ((origen, destino), i) =>
+            println(s"${i + 1}. De $origen a $destino")
+          }
+          val entrada = scala.io.StdIn.readLine("Elige movimiento (número): ")
+          if entrada.forall(_.isDigit) then
+            val opcion = entrada.toInt
+            if opcion >= 1 && opcion <= movimientos.size then movimientos(opcion - 1)
+            else
+              println("Opción fuera de rango. Intenta de nuevo.\n")
+              pedirMovimiento()
+          else
+            println("Entrada no válida. Intenta de nuevo.\n")
+            pedirMovimiento()
+        pedirMovimiento()
     }
 
   val nuevoEstado = estado.turno match {
@@ -63,5 +83,3 @@ def bucleJuego(tablero: TableroJuego, estado: Estado, modoIA: Set[Jugador]): Jug
     case None =>
       bucleJuego(tablero, nuevoEstado, modoIA)
   }
-
-
