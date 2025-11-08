@@ -1,46 +1,64 @@
 package Liebre_y_Perros
-import Liebre_y_Perros._
 
-def bucleJuego(tablero: TableroJuego, estado: Estado, modoIA: Boolean): Jugador =
-  pintarTablero(estado) // paso 1
+def bucleJuego(tablero: TableroJuego, estado: Estado, modoIA: Set[Jugador]): Jugador =
+  tablero.pintarTablero(estado)
 
-  val movimientos: Set[Posicion] = estado.turno match { // paso 2
-    case Jugador.Liebre => MovimientoLiebre.movimientosPosibles(tablero, estado)
-    case Jugador.Sabuesos => MovimientoSabueso.movimientosPosibles(tablero, estado)
+  val movimientoElegido = if modoIA.contains(estado.turno) then
+    estado.turno match {
+      case Jugador.Liebre =>
+        val movimientos = MovimientoLiebre.movimientosPosibles(tablero, estado)
+        val evaluaciones = movimientos.toSeq.map { destino =>
+          val heur = MovimientoLiebre.evaluarMovimiento(tablero, estado, destino)
+          println(s"Liebre → $destino → heurística: $heur")
+          (destino, heur)
+        }
+        evaluaciones.maxBy { case (_, heur) => heur }._1
+
+      case Jugador.Sabuesos =>
+        val movimientos = MovimientoSabueso.movimientosPosiblesPorSabueso(tablero, estado)
+        val evaluaciones = movimientos.toSeq.map { case (origen, destino) =>
+          val heur = MovimientoSabueso.evaluarMovimiento(tablero, estado, origen, destino)
+          println(s"Sabueso de $origen a $destino → heurística: $heur")
+          ((origen, destino), heur)
+        }
+        evaluaciones.maxBy { case (_, heur) => heur }(
+          Ordering.Tuple3(Ordering.Int, Ordering.Int, Ordering.Int)
+        )._1
+    }
+  else
+    estado.turno match {
+      case Jugador.Liebre =>
+        MovimientoLiebre.movimientosPosibles(tablero, estado).head
+
+      case Jugador.Sabuesos =>
+        MovimientoSabueso.movimientosPosiblesPorSabueso(tablero, estado).head
+    }
+
+  val nuevoEstado = estado.turno match {
+    case Jugador.Liebre =>
+      estado.copy(liebre = movimientoElegido.asInstanceOf[Posicion], turno = Jugador.Sabuesos)
+
+    case Jugador.Sabuesos =>
+      val (origen, destino) = movimientoElegido.asInstanceOf[(Posicion, Posicion)]
+      estado.copy(sabuesos = estado.sabuesos - origen + destino, turno = Jugador.Liebre)
   }
 
-  movimientos.toList.zipWithIndex.foreach { // paso 3
-    case (mov, idx) => 
-    println(s"${idx + 1}. $mov")
+  tablero.esFinPartida(nuevoEstado) match {
+    case Some(ganador) =>
+      tablero.pintarTablero(nuevoEstado)
+      println(s"¡Ganador: $ganador!")
+      ganador
+
+    case None =>
+      bucleJuego(tablero, nuevoEstado, modoIA)
   }
 
-if(modoIA) { 
-  val movimientosPosibles: Set[Posicion] = movimientoLiebre.movimientosPosibles(tablero,estado) //genera todos los movimientos posibles
-  val evaluaciones: Seq[(Posicion, (Int,Int))] = movimientosPosibles.toSeq.map {destino =>val heuristica = MovimientoLiebre.evaluarMovimiento(tablero,estado,destino) (destino, heuristica)}
-  val mejorMovimiento = evaluaciones.maxBy { case (_, (valor1, valor2)) => (valor1, valor2) } //prioriza el primer valor, si son iguales evalua el segundo valor
-  val movimientoElegido = mejorMovimiento._1 // elige el mejor movimiento(destino)
+@main def partidaInicial(): Unit =
+  val turno = sortearTurno()
+  val estado = Estado.inicial(TableroClasicoLyS, turno)
+  val modoIA = Set(Jugador.Sabuesos) // Puedes cambiar esto a Set(Jugador.Liebre) o ambos
 
-}
-else {
-  print("Elige un movimiento (número): ") // paso 4
-  val eleccion = scala.io.StdIn.readInt()
-  val listaMovimientos = movimientos.toList
-  val movimientoElegido = listaMovimientos(eleccion - 1)}
-
-val nuevoEstado = estado.turno match { // paso 5
-  case Jugador.Liebre => estado.copy (liebre = movimientoElegido, turno = Jugador.Sabuesos)
-  case Jugador.Sabuesos => 
-    val (origen, destino) = movimientoElegido
-    estado.copy (sabuesos = estado.sabuesos - origen + destino, turno = Jugador.Liebre)}
-    println(s"La heurística de este movimiento es: ${MovimientoLiebre.evaluarMovimiento(tablero, estado, movimientoElegido)}")
-
-
-esFinPartida(estado,tablero) match {
-  case Some(ganador) => 
-    pintarTablero(estado)
-    println(s"\nEl ganador es: $ganador")
-    ganador
-  case None => bucleJuego(tablero, nuevoEstado)  
-}
-
+  println(s"Empieza el turno de: $turno")
+  val ganador = bucleJuego(TableroClasicoLyS, estado, modoIA)
+  println(s"Ganador: $ganador")
 

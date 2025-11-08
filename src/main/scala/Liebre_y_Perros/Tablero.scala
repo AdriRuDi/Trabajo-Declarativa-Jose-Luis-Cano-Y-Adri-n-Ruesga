@@ -1,5 +1,4 @@
 package Liebre_y_Perros
-import Liebre_y_Perros._
 
 // --- Enumeraciones ---
 enum Fila(val y: Int):
@@ -18,8 +17,8 @@ enum Columna(val x: Int):
 case class Posicion(col: Columna, fila: Fila):
   def x: Int = col.x
   def y: Int = fila.y
-  def manhattan(other: Posicion): Int = math.abs(this.x - other.x) + math.abs(this.y - other.y)
-   
+  def manhattan(other: Posicion): Int =
+    math.abs(this.x - other.x) + math.abs(this.y - other.y)
 
 // --- Jugadores ---
 enum Jugador:
@@ -32,63 +31,54 @@ trait TableroJuego:
   def posicionesInicialesSabuesos: Set[Posicion]
   def posicionMetaLiebre: Posicion
   def pintarTablero(estado: Estado): Unit
+  def esFinPartida(estado: Estado): Option[Jugador]
 
-// --- Implementación del tablero clásico Liebre y Sabuesos ---
+// --- Implementación del tablero clásico ---
 object TableroClasicoLyS extends TableroJuego:
 
-  // --- Nodos (posiciones) ---
   val I1A = Posicion(Columna.I1, Fila.A)
   val MA  = Posicion(Columna.M,  Fila.A)
   val D1A = Posicion(Columna.D1, Fila.A)
-
   val I2M = Posicion(Columna.I2, Fila.M)
   val I1M = Posicion(Columna.I1, Fila.M)
   val MM  = Posicion(Columna.M,  Fila.M)
   val D1M = Posicion(Columna.D1, Fila.M)
   val D2M = Posicion(Columna.D2, Fila.M)
-
   val I1B = Posicion(Columna.I1, Fila.B)
   val MB  = Posicion(Columna.M,  Fila.B)
   val D1B = Posicion(Columna.D1, Fila.B)
 
-  // --- Grafo de adyacencias ---
   val adyacencias: Map[Posicion, Set[Posicion]] = Map(
     I1A -> Set(MA, I1M, I2M, MM),
     MA  -> Set(I1A, D1A, MM),
     D1A -> Set(MA, D1M, D2M),
-
     I2M -> Set(I1A, I1M, I1B),
     I1M -> Set(I1A, I2M, MM, I1B),
     MM  -> Set(MA, I1M, D1M, MB, D1A, I1A, D1B, I1B),
     D1M -> Set(D1A, MM, D2M, D1B),
     D2M -> Set(D1A, D1M, D1B),
-
     I1B -> Set(I1M, MB, I2M, MM),
     MB  -> Set(MM, I1B, D1B),
     D1B -> Set(D1M, MB, D2M)
   )
 
-  // --- Posiciones iniciales ---
   val posicionInicialLiebre: Posicion = D2M
   val posicionesInicialesSabuesos: Set[Posicion] = Set(I1A, I2M, I1B)
   val posicionMetaLiebre: Posicion = I2M
 
-  // --- Movimientos posibles ---
   def movimientosDesde(p: Posicion): Set[Posicion] =
     adyacencias.getOrElse(p, Set.empty)
-    
-  // --- Pintado (con colores y forma hexagonal) ---
+
   private def pintarNodo(p: Posicion, estado: Estado): String =
     val RESET = "\u001B[0m"
     val ROJO = "\u001B[31m"
     val AZUL = "\u001B[34m"
     val BLANCO = "\u001B[37m"
-
     if (estado.liebre == p) s"${ROJO}L${RESET}"
     else if (estado.sabuesos.contains(p)) s"${AZUL}S${RESET}"
     else s"${BLANCO}o${RESET}"
 
-  override def pintarTablero(estado: Estado): Unit =
+  def pintarTablero(estado: Estado): Unit =
     val s = pintarNodo(_, estado)
     println(s"         ${s(I1A)}-----${s(MA)}-----${s(D1A)}")
     println("       ╱ | \\ | / | \\")
@@ -96,12 +86,9 @@ object TableroClasicoLyS extends TableroJuego:
     println("       \\ | / | \\ | /")
     println(s"         ${s(I1B)}-----${s(MB)}-----${s(D1B)}")
 
-  // --- Fin de partida (pendiente de implementar) ---
-  def esFinPartida(estado: Estado, tablero: TableroJuego): Option[Jugador] = {
-    val ningunSabuesoPuedeMover = movimientosPosiblesPorSabueso(tablero,estado).isEmpty
-    val ningunaLiebrePuedeMover = MovimientoLiebre.movimientosPosibles(tablero,estado).isEmpty
-    if (ningunSabuesoPuedeMover) {Some(Jugador.Liebre)}
-    else if (ningunaLiebrePuedeMover) {Some(Jugador.Sabuesos)}
-    else  {None}
-  }
-    
+  def esFinPartida(estado: Estado): Option[Jugador] =
+    val liebreBloqueada = MovimientoLiebre.movimientosPosibles(this, estado).isEmpty
+    val sabuesosBloqueados = MovimientoSabueso.movimientosPosiblesPorSabueso(this, estado).isEmpty
+    if (liebreBloqueada) Some(Jugador.Sabuesos)
+    else if (estado.liebre == posicionMetaLiebre || sabuesosBloqueados) Some(Jugador.Liebre)
+    else None

@@ -22,11 +22,3 @@ object Estado:
       turno = turnoInicial
     )
 
-/** --- Punto de entrada para probar el juego --- */
-@main def partidaInicial(): Unit =
-  val turno = sortearTurno()
-  val estado = Estado.inicial(TableroClasicoLyS, turno)
-
-  println(s"Emp" +
-    s"ieza el turno de: $turno")
-  TableroClasicoLyS.pintarTablero(estado)
