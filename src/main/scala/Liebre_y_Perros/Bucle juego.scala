@@ -1,7 +1,7 @@
 package Liebre_y_Perros
 import Liebre_y_Perros._
 
-def bucleJuego(tablero: TableroJuego, estado: Estado): Jugador =
+def bucleJuego(tablero: TableroJuego, estado: Estado, modoIA: Boolean): Jugador =
   pintarTablero(estado) // paso 1
 
   val movimientos: Set[Posicion] = estado.turno match { // paso 2
@@ -14,10 +14,18 @@ def bucleJuego(tablero: TableroJuego, estado: Estado): Jugador =
     println(s"${idx + 1}. $mov")
   }
 
-print("Elige un movimiento (número): ") // paso 4
-val eleccion = scala.io.StdIn.readInt()
-val listaMovimientos = movimientos.toList
-val movimientoElegido = listaMovimientos(eleccion - 1)
+if(modoIA) { 
+  val movimientosPosibles: Set[Posicion] = movimientoLiebre.movimientosPosibles(tablero,estado) //genera todos los movimientos posibles
+  val evaluaciones: Seq[(Posicion, (Int,Int))] = movimientosPosibles.toSeq.map {destino =>val heuristica = MovimientoLiebre.evaluarMovimiento(tablero,estado,destino) (destino, heuristica)}
+  val mejorMovimiento = evaluaciones.maxBy { case (_, (valor1, valor2)) => (valor1, valor2) } //prioriza el primer valor, si son iguales evalua el segundo valor
+  val movimientoElegido = mejorMovimiento._1 // elige el mejor movimiento(destino)
+
+}
+else {
+  print("Elige un movimiento (número): ") // paso 4
+  val eleccion = scala.io.StdIn.readInt()
+  val listaMovimientos = movimientos.toList
+  val movimientoElegido = listaMovimientos(eleccion - 1)}
 
 val nuevoEstado = estado.turno match { // paso 5
   case Jugador.Liebre => estado.copy (liebre = movimientoElegido, turno = Jugador.Sabuesos)
